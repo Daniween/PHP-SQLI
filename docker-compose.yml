@@ -1,0 +1,30 @@
+services:
+  # Service Base de Données
+  db:
+    image: mysql:8.0
+    container_name: db_concession
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: concession_db
+      MYSQL_USER: sio_user
+      MYSQL_PASSWORD: password123
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Service Serveur Web (PHP + Apache)
+  web:
+    image: php:8.1-apache
+    container_name: web_app
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - db
+    # Installation de l'extension mysqli nécessaire pour PHP
+    command: >
+      sh -c "docker-php-ext-install mysqli && apache2-foreground"
